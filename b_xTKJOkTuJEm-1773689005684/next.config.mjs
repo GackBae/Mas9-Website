@@ -6,6 +6,10 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // Static export configuration for Cloudflare Pages
+  output: 'export',
+  trailingSlash: true,
+  distDir: 'out',
 }
 
 export default nextConfig

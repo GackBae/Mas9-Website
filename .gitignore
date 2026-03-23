@@ -1,0 +1,9 @@
+node_modules
+.next
+out
+.DS_Store
+.env.local
+.env*.local
+b_xTKJOkTuJEm-1773689005684/node_modules
+b_xTKJOkTuJEm-1773689005684/.next
+b_xTKJOkTuJEm-1773689005684/out

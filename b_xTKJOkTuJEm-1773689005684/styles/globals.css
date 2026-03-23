@@ -113,6 +113,30 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  --animate-aurora-1: aurora-1 15s infinite ease-in-out;
+  --animate-aurora-2: aurora-2 18s infinite ease-in-out;
+  --animate-aurora-3: aurora-3 12s infinite ease-in-out;
+  --animate-shimmer: shimmer 1.5s infinite;
+
+  @keyframes aurora-1 {
+    0% { transform: translate(-10%, -10%) rotate(0deg) scale(1); }
+    50% { transform: translate(10%, 10%) rotate(10deg) scale(1.1); }
+    100% { transform: translate(-10%, -10%) rotate(0deg) scale(1); }
+  }
+  @keyframes aurora-2 {
+    0% { transform: translate(10%, 10%) rotate(0deg) scale(1.1); }
+    50% { transform: translate(-10%, -10%) rotate(-5deg) scale(1); }
+    100% { transform: translate(10%, 10%) rotate(0deg) scale(1.1); }
+  }
+  @keyframes aurora-3 {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(5%, -5%) scale(1.2); }
+    100% { transform: translate(0, 0) scale(1); }
+  }
+  @keyframes shimmer {
+    100% { transform: translateX(100%); }
+  }
 }
 
 @layer base {
