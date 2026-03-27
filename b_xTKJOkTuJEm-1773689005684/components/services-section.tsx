@@ -406,12 +406,6 @@ export function ServicesSection() {
           </li>
          ))}
         </ul>
-
-        {/* CTA */}
-        <Button variant="outline" className="rounded-full px-6 border-[#E11D1D] text-[#E11D1D] hover:bg-[#E11D1D]/5 font-bold text-xs uppercase tracking-widest transition-all group-hover:border-[#E11D1D] group-hover:bg-[#E11D1D] group-hover:text-white">
-         Deploy Protocol
-         <ArrowRight className="ml-2 size-4 transition-transform group-hover:translate-x-1" />
-        </Button>
        </div>
 
        {/* Image */}

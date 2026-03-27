@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 import { AiAgent } from "@/components/ai-agent"
 import './globals.css'
 
@@ -13,21 +14,8 @@ export const metadata: Metadata = {
  description: 'Simplify operations, boost engagement and grow your school—all in one powerful platform.',
  generator: 'v0.app',
  icons: {
-  icon: [
-   {
-    url: '/icon-light-32x32.png',
-    media: '(prefers-color-scheme: light)',
-   },
-   {
-    url: '/icon-dark-32x32.png',
-    media: '(prefers-color-scheme: dark)',
-   },
-   {
-    url: '/icon.svg',
-    type: 'image/svg+xml',
-   },
-  ],
-  apple: '/apple-icon.png',
+  icon: '/favicon.png',
+  apple: '/favicon.png',
  },
 }
 
@@ -44,6 +32,7 @@ export default function RootLayout({
      <main className="flex-1">
       {children}
      </main>
+     <Footer />
     </div>
     <Analytics />
    </body>

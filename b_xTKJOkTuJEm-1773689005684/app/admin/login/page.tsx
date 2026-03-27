@@ -58,6 +58,11 @@ export default function AdminLoginPage() {
       // Initialize Google OAuth
       const googleAuthUrl = "https://accounts.google.com/o/oauth2/v2/auth"
       const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "your-google-client-id"
+      if (!clientId || clientId === "your-google-client-id") {
+        setError("Google OAuth is not configured. Set NEXT_PUBLIC_GOOGLE_CLIENT_ID in .env.local and restart the dev server.")
+        setIsGoogleLoading(false)
+        return
+      }
       const redirectUri = `${window.location.origin}/admin/auth/callback`
       const scope = "openid email profile"
       

@@ -2,9 +2,38 @@
 
 import React from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { motion, useScroll, useTransform, useSpring, useMotionValue } from "framer-motion"
+import { motion, useScroll, useTransform, useSpring, useMotionValue, useInView } from "framer-motion"
 import { ArrowRight, Users, TrendingUp, CheckCircle2, Activity, Zap, Award } from "lucide-react"
+
+// Counter Animation Component
+const AnimatedCounter = ({ value, prefix = "", suffix = "", decimals = 0, duration = 2 }: { value: number, prefix?: string, suffix?: string, decimals?: number, duration?: number }) => {
+  const [count, setCount] = React.useState(0)
+  const ref = React.useRef(null)
+  const isInView = useInView(ref, { once: true })
+
+  React.useEffect(() => {
+    if (!isInView) return
+
+    let startTime: number | null = null
+    const animate = (currentTime: number) => {
+      if (!startTime) startTime = currentTime
+      const progress = Math.min((currentTime - startTime) / (duration * 1000), 1)
+      
+      const easeOutQuart = 1 - Math.pow(1 - progress, 4)
+      setCount(Math.floor(easeOutQuart * value * Math.pow(10, decimals)) / Math.pow(10, decimals))
+      
+      if (progress < 1) {
+        requestAnimationFrame(animate)
+      }
+    }
+    
+    requestAnimationFrame(animate)
+  }, [isInView, value, decimals, duration])
+
+  return <span ref={ref}>{prefix}{count.toFixed(decimals)}{suffix}</span>
+}
 
 // --- Floating Glass Card ---
 const FloatingCard = ({ children, className, delay = 0, yOffset = 20 }: { children: React.ReactNode, className?: string, delay?: number, yOffset?: number }) => {
@@ -204,7 +233,7 @@ export function HeroSection() {
   };
 
   return (
-    <section ref={containerRef} className="py-20 md:py-32 pb-32 md:pb-48 bg-white overflow-hidden relative transform scale-[0.9] origin-top">
+    <section ref={containerRef} className="py-20 md:py-32 pb-0 md:pb-2 bg-white overflow-hidden relative">
       {/* Enhanced Background with Dynamic Elements */}
       <ParticleBackground />
       
@@ -280,7 +309,9 @@ export function HeroSection() {
               <span className="text-[10px] font-bold text-slate-700">Revenue</span>
             </div>
             <div className="flex items-baseline gap-1">
-              <span className="text-xs font-black text-slate-900">$24.8k</span>
+              <span className="text-xs font-black text-slate-900">
+                <AnimatedCounter value={24.8} prefix="$" suffix="k" decimals={1} duration={2.5} />
+              </span>
               <span className="text-[6px] text-green-500 font-bold">+12%</span>
             </div>
           </FloatingCard>
@@ -319,7 +350,9 @@ export function HeroSection() {
               <span className="text-[10px] font-bold text-slate-700">Active Leads</span>
             </div>
             <div className="flex items-baseline gap-1">
-              <span className="text-xs font-black text-slate-900">+24</span>
+              <span className="text-xs font-black text-slate-900">
+                <AnimatedCounter value={24} prefix="+" duration={2} />
+              </span>
               <span className="text-[6px] text-green-500 font-bold">Today</span>
             </div>
           </FloatingCard>
@@ -338,30 +371,6 @@ export function HeroSection() {
                 <div key={i} className={`h-1 w-0.5 rounded-sm ${i <= 3 ? "bg-amber-400" : "bg-slate-100"}`} />
               ))}
               <span className="text-[6px] text-slate-500 ml-1 font-medium italic">2d</span>
-            </div>
-          </FloatingCard>
-
-          <FloatingCard className="bottom-16 -left-36 w-32" delay={0.9} yOffset={45}>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-teal-100 flex items-center justify-center">
-                <Activity className="w-2.5 h-2.5 text-teal-600" />
-              </div>
-              <div className="flex flex-col items-start">
-                <span className="text-[10px] font-bold text-slate-700">Engagement</span>
-                <span className="text-[6px] text-teal-600 font-bold">87%</span>
-              </div>
-            </div>
-          </FloatingCard>
-
-          <FloatingCard className="bottom-4 -right-32 w-32" delay={1.0} yOffset={45}>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-orange-100 flex items-center justify-center">
-                <Zap className="w-2.5 h-2.5 text-orange-600" />
-              </div>
-              <div className="flex flex-col items-start">
-                <span className="text-[10px] font-bold text-slate-700">Response</span>
-                <span className="text-[6px] text-orange-600 font-bold">1.2s</span>
-              </div>
             </div>
           </FloatingCard>
 
@@ -431,28 +440,45 @@ export function HeroSection() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Button 
-                variant="outline"
-                className="group relative border-2 border-[#E11D1D] bg-[#E11D1D] text-white hover:bg-white hover:text-[#E11D1D] px-14 h-18 text-lg font-black rounded-full transition-all shadow-lg hover:shadow-white/25 overflow-hidden"
-              >
-                <span className="relative z-10">Get Started Free</span>
-                <ArrowRight className="inline-block ml-2 size-5 transition-transform group-hover:translate-x-2" />
-              </Button>
+              <Link href="https://school.mas9.com/signup" target="_blank" rel="noopener noreferrer">
+                <Button 
+                  variant="outline"
+                  className="group relative border-2 border-[#E11D1D] bg-[#E11D1D] text-white hover:bg-white hover:text-[#E11D1D] px-14 h-18 text-lg font-black rounded-full transition-all shadow-lg hover:shadow-white/25 overflow-hidden"
+                >
+                  <span className="relative z-10">Get Started Free</span>
+                </Button>
+              </Link>
             </motion.div>
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Button 
-                className="group relative bg-[#E11D1D] text-white hover:bg-white hover:text-[#E11D1D] px-14 h-18 text-lg font-black rounded-full shadow-xl shadow-red-500/30 transition-all overflow-hidden"
-              >
-                <span className="relative z-10">Schedule Demo</span>
-              </Button>
+              <Link href="https://calendly.com/masnineusa/meeting?back=1&month=2026-03" target="_blank" rel="noopener noreferrer">
+                <Button 
+                  className="group relative bg-slate-800 text-white hover:bg-white hover:text-slate-800 border-2 border-slate-800 px-14 h-18 text-lg font-black rounded-full shadow-xl shadow-slate-500/30 transition-all overflow-hidden"
+                >
+                  <span className="relative z-10">Schedule Demo</span>
+                </Button>
+              </Link>
             </motion.div>
           </motion.div>
 
-          
-                  </motion.div>
+          <motion.div
+            variants={itemVariants}
+            className="w-full max-w-6xl mx-auto"
+          >
+            <div className="relative overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-[0_25px_80px_rgba(2,6,23,0.12)]">
+              <Image
+                src="/herdur-overview.png"
+                alt="Herdur Overview"
+                width={1600}
+                height={900}
+                className="w-full h-auto"
+                priority
+              />
+            </div>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   )

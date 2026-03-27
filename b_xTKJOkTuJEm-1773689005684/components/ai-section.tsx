@@ -1,6 +1,6 @@
 "use client"
 
-import { Check, ArrowRight, Sparkles, Brain, TrendingUp, Users, MessageSquare, BarChart3, Zap, Target } from "lucide-react"
+import { Check, ArrowRight, Sparkles, Brain, TrendingUp, Users, MessageSquare, BarChart3, Zap, Target, Cpu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 
@@ -61,38 +61,52 @@ const CORE_METRICS = [
 
 export function AISection() {
   return (
-    <section id="ai" className="py-16 md:py-24 bg-background relative overflow-hidden">
-      {/* Decorative background blurs */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[800px] rounded-full bg-[#E11D1D]/5 blur-[120px] -z-10" />
+    <section id="ai" className="py-20 md:py-32 bg-[#0a0a0a] relative overflow-hidden">
+      {/* Subtle dot grid */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:2rem_2rem]" />
+      {/* Single soft red glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-[#E11D1D]/8 rounded-full blur-[150px]" />
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center mb-20">
           <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 bg-[#E11D1D]/10 text-[#E11D1D] px-4 py-1.5 rounded-full text-sm font-bold mb-6 uppercase tracking-wider"
+            className="inline-flex items-center gap-3 bg-[#E11D1D]/10 border border-[#E11D1D]/25 text-[#E11D1D] px-6 py-2.5 rounded-full text-sm font-bold mb-8 uppercase tracking-widest"
           >
-            AI Powered Growth
+            <Cpu className="w-4 h-4 animate-spin" style={{ animationDuration: '3s' }} />
+            AI Powered Growth Engine
           </motion.div>
+          
           <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="text-4xl md:text-5xl font-extrabold text-foreground mb-6"
+            className="text-5xl md:text-7xl font-black text-white mb-8 leading-tight"
           >
-            Not Just AI, But <span className="text-gradient-red">Revenue-Driving</span> AI
+            Not Just AI, But{" "}
+            <span className="relative inline-block">
+              <span className="relative z-10 bg-gradient-to-r from-[#E11D1D] via-red-400 to-red-500 bg-clip-text text-transparent">
+                Revenue-Driving
+              </span>
+              <span className="absolute inset-0 bg-gradient-to-r from-[#E11D1D]/30 to-red-500/30 blur-2xl opacity-40" />
+            </span>
+            {" "}AI
           </motion.h2>
+          
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
+            className="text-xl md:text-2xl text-slate-300 max-w-4xl mx-auto leading-relaxed"
           >
-            AI features in CRM aren't "nice-to-haves" - they're tools that<br />
-            <span className="text-foreground font-bold">directly impact revenue, conversion rates, and operational hours</span>.
+            AI features in CRM aren't "nice-to-haves" - they're tools that{" "}
+            <span className="text-white font-bold relative">
+              directly impact revenue, conversion rates, and operational hours
+            </span>
           </motion.p>
         </div>
 
@@ -102,63 +116,88 @@ export function AISection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.3 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20"
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-24"
         >
           {CORE_METRICS.map((metric, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              whileInView={{ opacity: 1, scale: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: 0.4 + index * 0.1 }}
-              className="text-center p-8 rounded-2xl bg-black/5 border border-white/10"
+              transition={{ delay: 0.4 + index * 0.15, type: "spring", bounce: 0.4 }}
+              whileHover={{ scale: 1.05, y: -8 }}
+              className="relative group h-full"
             >
-              <div className="text-3xl font-black text-[#E11D1D] mb-2">{metric.value}</div>
-              <div className="text-sm text-muted-foreground">{metric.description}</div>
+              <div className="relative text-center p-10 rounded-2xl bg-white/[0.04] border border-white/10 overflow-hidden h-full flex flex-col items-center justify-center hover:bg-white/[0.06] hover:border-white/15 transition-all duration-300">
+                
+                <div className="relative z-10">
+                  <div className="text-5xl md:text-6xl font-black text-[#E11D1D] mb-4">
+                    {metric.value}
+                  </div>
+                  <div className="text-sm md:text-base text-slate-300 font-medium">{metric.description}</div>
+                </div>
+              </div>
             </motion.div>
           ))}
         </motion.div>
 
         {/* AI Features Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto">
           {AI_FEATURES.map((feature, index) => (
             <motion.div
               key={feature.title}
-              initial={{ opacity: 0, x: index % 2 === 0 ? -40 : 40 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: index * 0.1 }}
-              whileHover={{ y: -4 }}
-              className={`relative bg-black text-white rounded-2xl p-8 shadow-premium border ${feature.highlight ? 'border-[#E11D1D]/30' : 'border-white/5'} overflow-hidden group`}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: index * 0.1 }}
+              whileHover={{ y: -8, scale: 1.02 }}
+              className="relative group h-full"
             >
-              {feature.highlight && (
-                <div className="absolute top-0 right-8 bg-[#E11D1D] text-white text-[10px] font-black px-4 py-1.5 rounded-b-xl uppercase tracking-[0.2em]">
-              CORE FEATURE
-                </div>
-              )}
-              
-              <div className="flex items-start gap-6">
-                <div className={`size-12 rounded-xl ${feature.highlight ? 'bg-[#E11D1D]/20' : 'bg-white/10'} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
-                  <feature.icon className={`size-6 ${feature.highlight ? 'text-[#E11D1D]' : 'text-white/80'}`} />
-                </div>
+              <div className={`relative rounded-2xl p-8 overflow-hidden border transition-all duration-300 h-full flex flex-col ${
+                feature.highlight 
+                  ? 'bg-white/[0.05] border-[#E11D1D]/30 hover:border-[#E11D1D]/50' 
+                  : 'bg-white/[0.03] border-white/8 hover:border-white/15'
+              }`}>
                 
-                <div className="flex-grow">
-                  <h3 className="text-xl font-extrabold mb-3">{feature.title}</h3>
-                  <p className="text-white/70 text-sm mb-4 leading-relaxed">{feature.description}</p>
+                {/* Badge */}
+                {feature.highlight && (
+                  <div className="absolute top-4 right-4 bg-[#E11D1D] text-white text-[9px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg shadow-[#E11D1D]/50">
+                    CORE AI
+                  </div>
+                )}
+                
+                <div className="relative z-10 flex items-start gap-6">
+                  {/* Icon */}
+                  <div className={`relative size-14 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 ${
+                    feature.highlight 
+                      ? 'bg-[#E11D1D]/15 border border-[#E11D1D]/30' 
+                      : 'bg-white/8 border border-white/10'
+                  }`}>
+                    <feature.icon className={`size-7 ${feature.highlight ? 'text-[#E11D1D]' : 'text-white/60'}`} />
+                  </div>
                   
-                  <ul className="space-y-2">
-                    {feature.benefits.map((benefit, benefitIndex) => (
-                      <li key={benefitIndex} className="flex items-center gap-2">
-                        <div className="size-1.5 rounded-full bg-[#E11D1D]" />
-                        <span className="text-[13px] text-white/60">{benefit}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  {/* Content */}
+                  <div className="flex-grow">
+                    <h3 className="text-2xl font-black text-white mb-3 group-hover:text-[#E11D1D] transition-colors">
+                      {feature.title}
+                    </h3>
+                    <p className="text-slate-300 text-base mb-5 leading-relaxed">
+                      {feature.description}
+                    </p>
+                    
+                    {/* Benefits */}
+                    <ul className="space-y-2.5">
+                      {feature.benefits.map((benefit, benefitIndex) => (
+                        <li key={benefitIndex} className="flex items-start gap-3">
+                          <div className={`mt-1.5 size-1.5 rounded-full shrink-0 ${feature.highlight ? 'bg-[#E11D1D]' : 'bg-white/30'}`} />
+                          <span className="text-sm text-slate-400 leading-relaxed">{benefit}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
-              </div>
 
-              {/* Decorative Inner Glow */}
-              <div className={`absolute -bottom-16 -right-16 size-32 rounded-full ${feature.highlight ? 'bg-[#E11D1D]/10' : 'bg-white/[0.02]'} blur-[60px] pointer-events-none`} />
+              </div>
             </motion.div>
           ))}
         </div>
@@ -169,14 +208,14 @@ export function AISection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.8 }}
-          className="text-center mt-20"
+          className="text-center mt-24"
         >
-          <div className="inline-flex items-center gap-2 bg-[#E11D1D]/10 text-[#E11D1D] px-6 py-3 rounded-full text-sm font-bold mb-6">
-            <Sparkles className="size-4" />
+          <div className="inline-flex items-center gap-3 bg-[#E11D1D]/10 border border-[#E11D1D]/20 text-white px-8 py-4 rounded-full text-sm font-bold mb-10">
+            <Sparkles className="size-5 animate-pulse" />
             Focus on the 5 most impactful AI features that deliver real results
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-4xl mx-auto mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-5xl mx-auto mb-12">
             {[
               "AI Lead Scoring", 
               "AI Follow-up", 
@@ -184,20 +223,29 @@ export function AISection() {
               "AI Chatbot", 
               "Smart Messaging"
             ].map((item, index) => (
-              <div key={index} className="text-center p-3 rounded-xl bg-black/5 border border-white/10">
-                <div className="text-xs font-bold text-foreground">{item}</div>
-              </div>
+              <motion.div 
+                key={index}
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.9 + index * 0.1 }}
+                whileHover={{ scale: 1.05, y: -4 }}
+                className="relative group"
+              >
+                <div className="text-center p-4 rounded-xl bg-white/[0.04] border border-white/10 group-hover:border-[#E11D1D]/30 group-hover:bg-white/[0.06] transition-all duration-300">
+                  <div className="text-sm font-bold text-white/80 group-hover:text-white transition-colors">{item}</div>
+                </div>
+              </motion.div>
             ))}
           </div>
 
-          <p className="text-lg text-muted-foreground mb-8">
-            These 5 features alone will <span className="text-[#E11D1D] font-bold">immediately boost revenue and operational efficiency</span>
+          <p className="text-xl text-slate-300 mb-10 max-w-3xl mx-auto">
+            These 5 features alone will{" "}
+            <span className="text-white font-black">
+              immediately boost revenue and operational efficiency
+            </span>
           </p>
 
-          <Button className="bg-[#E11D1D] hover:bg-white text-white hover:text-black h-14 text-base font-black rounded-full transition-all active:scale-95 px-8">
-            View AI Features
-            <ArrowRight className="ml-2 size-4" />
-          </Button>
         </motion.div>
       </div>
     </section>

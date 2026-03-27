@@ -1,75 +1,23 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { AuthGuard } from "@/components/auth-guard"
+import {
+  deleteBlogPost,
+  getAdminBlogPosts,
+  initializeBlogPostsIfNeeded,
+  type BlogPost,
+} from "@/lib/school-growth-cms"
 import { 
   Plus, 
-  Search, 
   Filter, 
   Edit, 
   Trash2, 
   Eye,
   Calendar,
-  User,
-  MoreVertical,
-  ChevronDown
 } from "lucide-react"
-
-// Mock data for blog posts
-const mockPosts = [
-  {
-    id: 1,
-    title: "5 Tips for Martial Arts School Growth",
-    excerpt: "Discover proven strategies to expand your martial arts school and attract more students...",
-    author: "Admin User",
-    publishedAt: "2024-03-20",
-    status: "published",
-    views: 1250,
-    thumbnail: "/api/placeholder/200/150"
-  },
-  {
-    id: 2,
-    title: "The Importance of Student Retention",
-    excerpt: "Learn why keeping existing students is crucial for long-term success in martial arts education...",
-    author: "Admin User",
-    publishedAt: "2024-03-18",
-    status: "published",
-    views: 890,
-    thumbnail: "/api/placeholder/200/150"
-  },
-  {
-    id: 3,
-    title: "Digital Marketing for Dojo Owners",
-    excerpt: "Essential digital marketing strategies every martial arts school owner should know...",
-    author: "Admin User",
-    publishedAt: "2024-03-15",
-    status: "draft",
-    views: 0,
-    thumbnail: "/api/placeholder/200/150"
-  },
-  {
-    id: 4,
-    title: "Building Community Through Events",
-    excerpt: "How to create engaging events that strengthen your martial arts school community...",
-    author: "Admin User",
-    publishedAt: "2024-03-12",
-    status: "published",
-    views: 567,
-    thumbnail: "/api/placeholder/200/150"
-  },
-  {
-    id: 5,
-    title: "Effective Teaching Methods for Kids",
-    excerpt: "Best practices for teaching martial arts to children and keeping them engaged...",
-    author: "Admin User",
-    publishedAt: "2024-03-10",
-    status: "published",
-    views: 2100,
-    thumbnail: "/api/placeholder/200/150"
-  }
-]
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -135,13 +83,24 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
 export default function BlogManagementPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [filterStatus, setFilterStatus] = useState("all")
+  const [posts, setPosts] = useState<BlogPost[]>([])
 
-  const filteredPosts = mockPosts.filter(post => {
+  useEffect(() => {
+    initializeBlogPostsIfNeeded()
+    setPosts(getAdminBlogPosts())
+  }, [])
+
+  const filteredPosts = useMemo(() => posts.filter(post => {
     const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          post.excerpt.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesFilter = filterStatus === "all" || post.status === filterStatus
     return matchesSearch && matchesFilter
-  })
+  }), [posts, searchTerm, filterStatus])
+
+  const handleDelete = (id: string) => {
+    deleteBlogPost(id)
+    setPosts(getAdminBlogPosts())
+  }
 
   return (
     <AuthGuard>
@@ -170,26 +129,26 @@ export default function BlogManagementPage() {
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div className="bg-white rounded-xl border border-slate-200 p-6">
-              <h3 className="text-2xl font-bold text-slate-900 mb-1">{mockPosts.length}</h3>
+              <h3 className="text-2xl font-bold text-slate-900 mb-1">{posts.length}</h3>
               <p className="text-sm text-slate-600">Total Posts</p>
             </div>
             <div className="bg-white rounded-xl border border-slate-200 p-6">
               <h3 className="text-2xl font-bold text-slate-900 mb-1">
-                {mockPosts.filter(p => p.status === 'published').length}
+                {posts.filter(p => p.status === 'published').length}
               </h3>
               <p className="text-sm text-slate-600">Published</p>
             </div>
             <div className="bg-white rounded-xl border border-slate-200 p-6">
               <h3 className="text-2xl font-bold text-slate-900 mb-1">
-                {mockPosts.filter(p => p.status === 'draft').length}
+                {posts.filter(p => p.status === 'draft').length}
               </h3>
               <p className="text-sm text-slate-600">Drafts</p>
             </div>
             <div className="bg-white rounded-xl border border-slate-200 p-6">
               <h3 className="text-2xl font-bold text-slate-900 mb-1">
-                {mockPosts.reduce((acc, p) => acc + p.views, 0).toLocaleString()}
+                {posts.filter((p) => p.status === "published").length.toLocaleString()}
               </h3>
-              <p className="text-sm text-slate-600">Total Views</p>
+              <p className="text-sm text-slate-600">Published Posts</p>
             </div>
           </div>
 
@@ -303,7 +262,7 @@ export default function BlogManagementPage() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-1 text-sm text-slate-600">
                           <Calendar className="w-3 h-3" />
-                          {post.publishedAt}
+                          {post.publishedAt || "Not published"}
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -312,12 +271,15 @@ export default function BlogManagementPage() {
                             <Eye className="w-4 h-4" />
                           </button>
                           <Link
-                            href={`/admin/blog/edit/${post.id}`}
+                            href={`/admin/blog/new?edit=${post.id}`}
                             className="p-1 text-slate-400 hover:text-slate-600 transition-colors"
                           >
                             <Edit className="w-4 h-4" />
                           </Link>
-                          <button className="p-1 text-slate-400 hover:text-red-600 transition-colors">
+                          <button
+                            onClick={() => handleDelete(post.id)}
+                            className="p-1 text-slate-400 hover:text-red-600 transition-colors"
+                          >
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>

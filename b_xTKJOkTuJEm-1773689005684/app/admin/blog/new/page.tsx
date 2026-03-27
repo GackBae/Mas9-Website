@@ -1,10 +1,15 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { Suspense, useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { AuthGuard } from "@/components/auth-guard"
+import {
+  getBlogPostById,
+  initializeBlogPostsIfNeeded,
+  upsertBlogPost,
+} from "@/lib/school-growth-cms"
 import { 
   ArrowLeft, 
   Save, 
@@ -82,17 +87,45 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   )
 }
 
-export default function NewBlogPostPage() {
+function NewBlogPostContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const editId = searchParams.get("edit")
   const [formData, setFormData] = useState({
     title: "",
     excerpt: "",
     content: "",
     status: "draft",
     thumbnail: null as File | null,
-    thumbnailUrl: ""
+    thumbnailUrl: "",
+    category: "Growth Strategies",
+    featured: false,
   })
   const [isSaving, setIsSaving] = useState(false)
+
+  useEffect(() => {
+    initializeBlogPostsIfNeeded()
+
+    if (!editId) {
+      return
+    }
+
+    const existing = getBlogPostById(editId)
+    if (!existing) {
+      return
+    }
+
+    setFormData({
+      title: existing.title,
+      excerpt: existing.excerpt,
+      content: existing.content,
+      status: existing.status,
+      thumbnail: null,
+      thumbnailUrl: existing.thumbnail,
+      category: existing.category,
+      featured: existing.featured,
+    })
+  }, [editId])
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -109,20 +142,35 @@ export default function NewBlogPostPage() {
     }
   }
 
-  const handleSave = async (status: string) => {
-    setIsSaving(true)
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    console.log("Saving post:", { ...formData, status })
-    setIsSaving(false)
-    
-    if (status === "published") {
-      router.push("/admin/blog")
-    } else {
-      // Show success message for draft
-      alert("Draft saved successfully!")
+  const handleSave = async (status: "draft" | "published") => {
+    if (!formData.title.trim() || !formData.content.trim()) {
+      alert("Please add both title and content before saving.")
+      return
     }
+
+    setIsSaving(true)
+
+    const adminName = localStorage.getItem("adminName")
+    const adminEmail = localStorage.getItem("adminEmail")
+    const author = adminName || adminEmail || "Admin User"
+
+    const excerpt = formData.excerpt.trim() || `${formData.content.trim().slice(0, 140)}...`
+
+    upsertBlogPost({
+      id: editId ?? undefined,
+      title: formData.title.trim(),
+      excerpt,
+      content: formData.content,
+      author,
+      thumbnail: formData.thumbnailUrl,
+      category: formData.category,
+      featured: formData.featured,
+      status,
+    })
+
+    setIsSaving(false)
+
+    router.push("/admin/blog")
   }
 
   const insertFormatting = (format: string) => {
@@ -191,8 +239,14 @@ export default function NewBlogPostPage() {
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <div>
-                <h1 className="text-3xl font-bold text-slate-900 mb-2">Create New Post</h1>
-                <p className="text-slate-600">Write and publish your School Growth blog post</p>
+                <h1 className="text-3xl font-bold text-slate-900 mb-2">
+                  {editId ? "Edit Post" : "Create New Post"}
+                </h1>
+                <p className="text-slate-600">
+                  {editId
+                    ? "Update and republish your School Growth blog post"
+                    : "Write and publish your School Growth blog post"}
+                </p>
               </div>
             </div>
             
@@ -330,19 +384,31 @@ export default function NewBlogPostPage() {
                 
                 <div className="space-y-4">
                   {formData.thumbnailUrl ? (
-                    <div className="relative">
-                      <img
-                        src={formData.thumbnailUrl}
-                        alt="Thumbnail preview"
-                        className="w-full h-48 object-cover rounded-lg"
-                      />
-                      <button
-                        onClick={() => setFormData(prev => ({ ...prev, thumbnail: null, thumbnailUrl: "" }))}
-                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                      >
-                        ×
-                      </button>
-                    </div>
+                    <>
+                      <div className="relative">
+                        <img
+                          src={formData.thumbnailUrl}
+                          alt="Thumbnail preview"
+                          className="w-full h-48 object-cover rounded-lg"
+                        />
+                        <button
+                          onClick={() => setFormData(prev => ({ ...prev, thumbnail: null, thumbnailUrl: "" }))}
+                          className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                        >
+                          ×
+                        </button>
+                      </div>
+
+                      <label className="flex items-center gap-2 text-sm text-slate-700">
+                        <input
+                          type="checkbox"
+                          checked={formData.featured}
+                          onChange={(e) => setFormData((prev) => ({ ...prev, featured: e.target.checked }))}
+                          className="h-4 w-4 rounded border-slate-300 text-[#E11D1D] focus:ring-[#E11D1D]"
+                        />
+                        Feature this post on top section
+                      </label>
+                    </>
                   ) : (
                     <label className="block">
                       <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center hover:border-slate-400 transition-colors cursor-pointer">
@@ -366,6 +432,24 @@ export default function NewBlogPostPage() {
                 <h3 className="text-lg font-semibold text-slate-900 mb-4">Publish Settings</h3>
                 
                 <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Category
+                    </label>
+                    <select
+                      value={formData.category}
+                      onChange={(e) => handleInputChange("category", e.target.value)}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E11D1D] focus:border-transparent"
+                    >
+                      <option value="Growth Strategies">Growth Strategies</option>
+                      <option value="Student Management">Student Management</option>
+                      <option value="Marketing">Marketing</option>
+                      <option value="Community">Community</option>
+                      <option value="Teaching">Teaching</option>
+                      <option value="Business">Business</option>
+                    </select>
+                  </div>
+
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">
                       Status
@@ -416,5 +500,21 @@ export default function NewBlogPostPage() {
         </motion.div>
       </AdminLayout>
     </AuthGuard>
+  )
+}
+
+function NewBlogPostFallback() {
+  return (
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="w-10 h-10 border-4 border-slate-300 border-t-[#E11D1D] rounded-full animate-spin" />
+    </div>
+  )
+}
+
+export default function NewBlogPostPage() {
+  return (
+    <Suspense fallback={<NewBlogPostFallback />}>
+      <NewBlogPostContent />
+    </Suspense>
   )
 }
